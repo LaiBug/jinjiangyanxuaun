@@ -1,4 +1,4 @@
-iu // —— demo 阶段 mock 数据：场次 / 摊位全部使用严选市集真实场地风格命名 ——
+// —— demo 阶段 mock 数据：场次 / 摊位全部使用严选市集真实场地风格命名 ——
 // 正式版这些数据来自运营后台（markets / stalls 表），demo 先写死。
 // 支持多场并行：status = done 已办完 / ongoing 进行中 / upcoming 预告 / tbd 筹备中
 
