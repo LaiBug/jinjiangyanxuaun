@@ -1,4 +1,4 @@
-// —— demo 阶段 mock 数据：场次 / 摊位全部使用严选市集真实场地风格命名 ——
+iu // —— demo 阶段 mock 数据：场次 / 摊位全部使用严选市集真实场地风格命名 ——
 // 正式版这些数据来自运营后台（markets / stalls 表），demo 先写死。
 // 支持多场并行：status = done 已办完 / ongoing 进行中 / upcoming 预告 / tbd 筹备中
 
@@ -68,10 +68,11 @@ export const BADGES = [
 ]
 
 // 老板视角·客流漏斗（mock，文档 P0 页面四）
+// 全部为小程序自有行为埋点，不依赖抖音开放接口
 export const FUNNEL = [
-  { label: '抖音预告曝光', value: 12000 },
   { label: '打开小程序查场次', value: 3200 },
   { label: '点导航 · 真到场', value: 860 },
+  { label: '扫码登记消费', value: 540 },
   { label: '集满 3 章 · 回头客', value: 214 },
   { label: '私域可召回', value: 214 },
 ]
