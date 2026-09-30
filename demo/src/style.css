@@ -307,6 +307,24 @@ button {
   line-height: 1.6;
 }
 
+/* 非用户端页面（核销 / 看板）顶部返回条 */
+.backbar {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+.backbar:active {
+  opacity: 0.6;
+}
+
 /* —— 分享卡片弹窗 —— */
 .mask {
   position: fixed;

@@ -1,6 +1,8 @@
 <script setup>
+import { inject } from 'vue'
 import { FUNNEL } from '../data.js'
 
+const nav = inject('nav')
 const max = FUNNEL[0].value
 const pct = (v) => Math.max(8, (v / max) * 100) + '%'
 const fmt = (v) => v.toLocaleString('zh-CN')
@@ -8,6 +10,7 @@ const fmt = (v) => v.toLocaleString('zh-CN')
 
 <template>
   <div>
+    <button class="backbar" @click="nav('profile')">‹ 返回「我的」 · 运营看板（老板视角）</button>
     <div class="quote">
       “抖音后台告诉你视频多少人看；<br />这块看板告诉你<b>多少人真来了、来了几次、怎么再叫回来</b>。”
     </div>

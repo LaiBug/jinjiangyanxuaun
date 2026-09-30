@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 import { marketById } from '../data.js'
 import { state, pendingRecords, verifyAll, toast } from '../store.js'
+
+const nav = inject('nav')
 
 // 集卡处 / 工作人员视角（demo 高光页）：扫用户核销码 → 消费清单自动带出 → 抽查一次 → 一键到账
 const scanned = ref(false)
@@ -40,6 +42,7 @@ function fmtTime(ts) {
 
 <template>
   <div>
+    <button class="backbar" @click="nav('profile')">‹ 返回「我的」 · 兑奖核销（工作人员端）</button>
     <div class="note">
       集卡处工作人员视角（demo）。现状痛点：对着一堆付款记录<b>逐笔人工核对金额、算章、盖章</b>；新方案把人工压缩到「兑奖这一刻抽查一次」。
     </div>
