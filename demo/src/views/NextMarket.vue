@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { MARKETS, STATUS_TEXT, ongoingMarkets, nextMarket, daysLeft } from '../data.js'
-import { state, stampMarket, toast } from '../store.js'
+import { marketStampStatus } from '../store.js'
+import { toast } from '../store.js'
 
 const ongoing = ongoingMarkets()
 const next = nextMarket()
@@ -32,15 +33,10 @@ const cdUnits = computed(() => [
   { v: cd.value.s, l: '秒' },
 ])
 
-const popId = ref('')
-function onStamp(m) {
-  if (stampMarket(m)) {
-    popId.value = m.id
-    setTimeout(() => (popId.value = ''), 700)
-  }
-}
-const stamped = (m) => !!state.marketStamps[m.id]
+// 场次章状态仅做展示（来源=消费登记核销，不在首页盖章）
+const statusOf = (m) => marketStampStatus(m.id)
 const sealName = (m) => m.name.replace(/场$/, '')
+const STATUS_SEAL_TEXT = { verified: '已到账', pending: '待核验' }
 
 function nav() {
   toast('demo 占位：正式版接腾讯地图一键导航')
@@ -73,24 +69,16 @@ function fmt(m) {
       </h1>
       <div class="date">{{ fmt(m) }}</div>
       <div class="stamp-zone">
-        <div v-if="stamped(m)" class="seal" :class="{ pop: popId === m.id }">
+        <div class="seal" :class="{ gray: !statusOf(m), pending: statusOf(m) === 'pending' }">
           <span class="s-name">{{ sealName(m) }}</span>
-          <span class="s-sub">到场章</span>
-        </div>
-        <div v-else class="seal gray">
-          <span class="s-name">{{ sealName(m) }}</span>
-          <span class="s-sub">待点亮</span>
+          <span class="s-sub">{{ statusOf(m) ? STATUS_SEAL_TEXT[statusOf(m)] : '待集' }}</span>
         </div>
         <div class="live-btns">
-          <button class="btn solid" :disabled="stamped(m)" @click="onStamp(m)">
-            {{ stamped(m) ? '到场章已集' : '到场打卡 · 盖章' }}
-          </button>
-          <div class="row">
-            <button class="btn ghost sm" @click="nav">一键导航</button>
-            <button class="btn ghost sm" @click="remind">提醒我</button>
-          </div>
+          <button class="btn solid" @click="nav">一键导航</button>
+          <button class="btn ghost" @click="remind">提醒我</button>
         </div>
       </div>
+      <div class="muted howto">到场扫摊位码付款 → 扫摊位静态码登记消费 → 集章兑好礼（去「本场集章」体验）</div>
     </section>
 
     <!-- 下一场预告 -->
@@ -113,21 +101,6 @@ function fmt(m) {
         <button class="btn ghost" @click="nav">一键导航</button>
         <button class="btn ghost" @click="remind">开市提醒我</button>
       </div>
-
-      <div class="stamp-zone">
-        <div v-if="stamped(next)" class="seal" :class="{ pop: popId === next.id }">
-          <span class="s-name">{{ sealName(next) }}</span>
-          <span class="s-sub">到场章</span>
-        </div>
-        <div v-else class="seal gray">
-          <span class="s-name">{{ sealName(next) }}</span>
-          <span class="s-sub">待点亮</span>
-        </div>
-        <button class="btn solid" :disabled="stamped(next)" @click="onStamp(next)">
-          {{ stamped(next) ? '到场章已集' : '预约打卡 · 盖章' }}
-        </button>
-      </div>
-      <div class="muted">demo 用点按模拟定位打卡；正式版为 LBS 到场自动校验</div>
     </section>
 
     <section class="card">
@@ -235,7 +208,7 @@ function fmt(m) {
   align-items: center;
   justify-content: center;
   gap: 18px;
-  padding: 4px 0 6px;
+  padding: 4px 0 8px;
 }
 .live-btns {
   display: flex;
@@ -243,14 +216,16 @@ function fmt(m) {
   gap: 8px;
   align-items: stretch;
 }
+.howto {
+  border-top: 1px dashed var(--line);
+  padding-top: 8px;
+  text-align: center;
+  line-height: 1.6;
+}
 .row {
   display: flex;
   gap: 8px;
   justify-content: center;
-}
-.btn.sm {
-  padding: 6px 12px;
-  font-size: 12px;
 }
 
 .hero {
@@ -279,12 +254,6 @@ function fmt(m) {
 .cd-u span {
   font-size: 11px;
   color: var(--muted);
-}
-.hero .row {
-  margin-bottom: 14px;
-}
-.hero .muted {
-  margin-top: 8px;
 }
 
 .tl {

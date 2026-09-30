@@ -3,12 +3,14 @@ import { ref, computed } from 'vue'
 import { state } from './store.js'
 import NextMarket from './views/NextMarket.vue'
 import Stalls from './views/Stalls.vue'
+import Verify from './views/Verify.vue'
 import Passport from './views/Passport.vue'
 import Boss from './views/Boss.vue'
 
 const tabs = [
   { id: 'next', label: '下一场', comp: NextMarket },
-  { id: 'stalls', label: '本场集章', comp: Stalls },
+  { id: 'stalls', label: '消费登记', comp: Stalls },
+  { id: 'verify', label: '兑奖核销', comp: Verify },
   { id: 'passport', label: '打卡护照', comp: Passport },
   { id: 'boss', label: '运营看板', comp: Boss },
 ]

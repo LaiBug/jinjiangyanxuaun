@@ -179,6 +179,17 @@ button {
   background: transparent;
   transform: none;
 }
+/* 三态章：pending = 已登记待核验（橙），verified = 已核销到账（红） */
+.seal.pending {
+  border-style: dashed;
+  border-color: #d9822b;
+  box-shadow: inset 0 0 0 2.5px #fff;
+  color: #d9822b;
+  background: rgba(217, 130, 43, 0.07);
+}
+.seal.mini.pending {
+  box-shadow: inset 0 0 0 1.5px #fff;
+}
 .seal.mini {
   width: 52px;
   height: 52px;
@@ -222,12 +233,13 @@ button {
 }
 .tabbar button {
   flex: 1;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--muted);
   padding: 6px 0;
   border-radius: 10px;
   position: relative;
+  white-space: nowrap;
 }
 .tabbar button.on {
   color: var(--seal);

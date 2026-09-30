@@ -1,8 +1,9 @@
 import { reactive } from 'vue'
-import { MARKETS, levelOf } from './data.js'
+import { MARKETS, levelOf, stampsForAmount } from './data.js'
 
-// 集章护照状态：localStorage 持久化，刷新/重开链接章不丢（demo 无后端）
-const KEY = 'yx_passport_v2'
+// 集章护照状态：localStorage 持久化（demo 无后端）
+// v3 口径（会议纪要二）：消费驱动 —— 用户自助登记（章预到账/待核验）→ 兑奖扫码抽查 → 确认到账
+const KEY = 'yx_passport_v3'
 
 function load() {
   try {
@@ -15,21 +16,14 @@ function load() {
 const saved = load()
 
 export const state = reactive({
-  stallStamps: saved.stallStamps || {}, // { stallId: 时间戳 }
-  marketStamps: saved.marketStamps || {}, // { marketId: 时间戳 } 场次到场章
+  // 消费登记记录：{ id, stallId, marketId, amount, stamps, receiptNo, time, status:'pending'|'verified' }
+  records: saved.records || [],
   points: saved.points || 0,
   toastText: '',
 })
 
 function persist() {
-  localStorage.setItem(
-    KEY,
-    JSON.stringify({
-      stallStamps: state.stallStamps,
-      marketStamps: state.marketStamps,
-      points: state.points,
-    }),
-  )
+  localStorage.setItem(KEY, JSON.stringify({ records: state.records, points: state.points }))
 }
 
 let toastTimer = null
@@ -38,45 +32,76 @@ export function toast(msg) {
   clearTimeout(toastTimer)
   toastTimer = setTimeout(() => {
     state.toastText = ''
-  }, 1800)
+  }, 2200)
 }
 
-// 摊位章：模拟扫摊位二维码盖章，防重（正式版由后端唯一约束保证）
-export function stampStall(stall) {
-  if (state.stallStamps[stall.id]) {
-    toast('这个摊位已经盖过章啦')
-    return false
+// 用户自助登记一笔消费（扫摊位静态码 + 付款截图 OCR）→ 章"预到账"
+export function registerConsumption(stall, amount) {
+  if (recordByStall(stall.id)) {
+    toast('这个摊位已经登记过一笔啦（单号去重）')
+    return null
   }
-  state.stallStamps[stall.id] = Date.now()
-  state.points += 10
-  persist()
-  toast('印章点亮 · 积分 +10')
-  return true
-}
-
-// 场次章：到场打卡章，模拟 LBS 定位打卡；多场并行时各场独立
-export function stampMarket(market) {
-  if (state.marketStamps[market.id]) {
-    toast(market.name + '的到场章已经集过啦')
-    return false
+  const rec = {
+    id: 'r' + Date.now(),
+    stallId: stall.id,
+    stallName: stall.name,
+    marketId: stall.marketId,
+    amount,
+    stamps: stampsForAmount(amount),
+    receiptNo: 'SQB' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 90 + 10),
+    time: Date.now(),
+    status: 'pending',
   }
-  state.marketStamps[market.id] = Date.now()
-  state.points += 20
+  state.records.push(rec)
   persist()
-  toast(market.name + ' 到场章落袋 · 积分 +20')
-  return true
+  toast('登记成功 · ' + rec.stamps + ' 枚章预到账，待兑奖核验')
+  return rec
 }
 
-export function litMarkets() {
-  return MARKETS.filter((m) => state.marketStamps[m.id])
+// 兑奖关口：工作人员扫核销码后一键确认到账（抽查放行）→ 发积分
+export function verifyAll() {
+  const pendings = state.records.filter((r) => r.status === 'pending')
+  if (!pendings.length) {
+    toast('没有待核验的消费登记')
+    return null
+  }
+  let stamps = 0
+  pendings.forEach((r) => {
+    r.status = 'verified'
+    stamps += r.stamps
+  })
+  state.points += stamps * 10
+  persist()
+  toast('核销放行 · ' + stamps + ' 枚章到账，积分 +' + stamps * 10)
+  return { count: pendings.length, stamps }
+}
+
+export function recordByStall(stallId) {
+  return state.records.find((r) => r.stallId === stallId)
+}
+
+export function recordsOfMarket(marketId) {
+  return state.records.filter((r) => r.marketId === marketId)
+}
+
+export function pendingRecords() {
+  return state.records.filter((r) => r.status === 'pending')
+}
+
+// 场次章状态：该场有已核销记录=亮章；仅有待核验=预亮；无=灰
+export function marketStampStatus(marketId) {
+  const recs = recordsOfMarket(marketId)
+  if (recs.some((r) => r.status === 'verified')) return 'verified'
+  if (recs.length) return 'pending'
+  return null
+}
+
+export function verifiedStamps() {
+  return state.records.filter((r) => r.status === 'verified').reduce((s, r) => s + r.stamps, 0)
 }
 
 export function litCount() {
-  return litMarkets().length
-}
-
-export function stallStampCount() {
-  return Object.keys(state.stallStamps).length
+  return MARKETS.filter((m) => marketStampStatus(m.id) === 'verified').length
 }
 
 export function levelTitle() {

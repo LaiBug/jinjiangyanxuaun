@@ -30,12 +30,25 @@ const fmt = (v) => v.toLocaleString('zh-CN')
       </div>
       <div class="kpi">
         <b>3.2 枚</b>
-        <span>人均盖章数<br />＝ 每人平均被引导到 3 个摊位</span>
+        <span>人均消费章数<br />＝ 每人平均在 3 个摊位花钱并登记</span>
       </div>
       <div class="kpi">
         <b>214 人</b>
         <span>私域可召回人数<br />＝ 订阅消息免费触达，不靠抖音投流</span>
       </div>
+    </section>
+
+    <section class="card verify-cmp">
+      <h2>集章核销：现状 vs 新方案</h2>
+      <div class="vc-row old">
+        <b>现状</b>
+        <span>集卡处对着付款记录<b>逐笔人工核对</b>：认截图、算档位、盖章，≈40 秒/笔，高峰期排长队、易错易漏</span>
+      </div>
+      <div class="vc-row new">
+        <b>新方案</b>
+        <span>用户扫码<b>自助登记</b>（截图 OCR 自动带出金额/单号），兑奖时扫核销码<b>抽查一次</b>放行，≈10 秒/人</span>
+      </div>
+      <div class="muted">人工只留在「兑奖这一刻」，其余环节零人工；单号字符串去重，不碰钱、不接支付回调</div>
     </section>
 
     <div class="note">
@@ -120,5 +133,50 @@ const fmt = (v) => v.toLocaleString('zh-CN')
   font-size: 11px;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.vc-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12px;
+  line-height: 1.7;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.vc-row b {
+  flex: none;
+  font-size: 11px;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 7px;
+  margin-top: 2px;
+}
+.vc-row span b {
+  flex: none;
+  font-size: 12px;
+  color: inherit;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-weight: 800;
+}
+.vc-row.old {
+  background: rgba(138, 128, 114, 0.1);
+  color: var(--muted);
+}
+.vc-row.old > b {
+  background: var(--muted);
+}
+.vc-row.new {
+  background: rgba(74, 143, 74, 0.1);
+  color: #3d7a3d;
+}
+.vc-row.new > b {
+  background: #4a8f4a;
+}
+.verify-cmp .muted {
+  margin-top: 2px;
 }
 </style>

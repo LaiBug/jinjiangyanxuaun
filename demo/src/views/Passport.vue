@@ -1,17 +1,24 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { MARKETS, BADGES, STATUS_TEXT } from '../data.js'
-import { state, litCount, stallStampCount, levelTitle } from '../store.js'
+import { state, litCount, verifiedStamps, levelTitle, marketStampStatus, pendingRecords } from '../store.js'
 
 const lit = computed(() => litCount())
-const stallCount = computed(() => stallStampCount())
-const isLit = (m) => !!state.marketStamps[m.id]
+const stamps = computed(() => verifiedStamps())
+const pendCount = computed(() => pendingRecords().length)
 const sealName = (m) => m.name.replace(/场$/, '')
 const stampDate = (m) => {
-  const ts = state.marketStamps[m.id]
-  if (!ts) return ''
-  const d = new Date(ts)
+  // 取该场最近一条已核销记录的时间做章面日期
+  const recs = state.records.filter((r) => r.marketId === m.id && r.status === 'verified')
+  if (!recs.length) return ''
+  const d = new Date(Math.max(...recs.map((r) => r.time)))
   return d.getMonth() + 1 + '.' + d.getDate()
+}
+const subText = (m) => {
+  const s = marketStampStatus(m.id)
+  if (s === 'verified') return stampDate(m)
+  if (s === 'pending') return '待核验'
+  return STATUS_TEXT[m.status]
 }
 
 const posterUrl = ref('')
@@ -46,37 +53,38 @@ function makePoster() {
   ctx.font = '700 56px KaiTi, STKaiti, serif'
   ctx.fillText('我的集章战绩', 375, 254)
 
-  // 7 枚场次章：上 4 下 3
+  // 7 枚场次章：上 4 下 3（红=已到账 / 橙虚线=待核验 / 灰=未登记）
   const rows = [MARKETS.slice(0, 4), MARKETS.slice(4)]
   rows.forEach((row, r) => {
     const cy = 400 + r * 165
     row.forEach((m, i) => {
       const cx = 750 / (row.length + 1) * (i + 1)
-      const on = isLit(m)
+      const st = marketStampStatus(m.id)
+      const color = st === 'verified' ? '#c8342b' : st === 'pending' ? '#d9822b' : '#cfc6b8'
       ctx.beginPath()
       ctx.arc(cx, cy, 56, 0, Math.PI * 2)
-      ctx.strokeStyle = on ? '#c8342b' : '#cfc6b8'
+      ctx.strokeStyle = color
       ctx.lineWidth = 5
-      ctx.setLineDash(on ? [] : [8, 7])
+      ctx.setLineDash(st === 'verified' ? [] : [8, 7])
       ctx.stroke()
       ctx.setLineDash([])
-      if (on) {
+      if (st === 'verified') {
         ctx.beginPath()
         ctx.arc(cx, cy, 46, 0, Math.PI * 2)
         ctx.lineWidth = 2
         ctx.stroke()
       }
-      ctx.fillStyle = on ? '#c8342b' : '#b9b0a0'
+      ctx.fillStyle = st ? color : '#b9b0a0'
       ctx.font = '700 24px KaiTi, STKaiti, serif'
       ctx.fillText(sealName(m), cx, cy + 2)
       ctx.font = '15px sans-serif'
-      ctx.fillText(on ? stampDate(m) : STATUS_TEXT[m.status], cx, cy + 30)
+      ctx.fillText(subText(m), cx, cy + 30)
     })
   })
 
   ctx.fillStyle = '#2f2a26'
   ctx.font = '700 38px sans-serif'
-  ctx.fillText(`点亮 ${lit.value}/${MARKETS.length} 场 · 摊位章 ${stallCount.value} 枚 · ${state.points} 积分`, 375, 700)
+  ctx.fillText(`点亮 ${lit.value}/${MARKETS.length} 场 · 消费章 ${stamps.value} 枚 · ${state.points} 积分`, 375, 700)
 
   ctx.fillStyle = '#c8342b'
   ctx.font = '700 64px KaiTi, STKaiti, serif'
@@ -102,23 +110,25 @@ function makePoster() {
       </div>
       <div class="nums">
         <div><b>{{ lit }}/{{ MARKETS.length }}</b><span>场次章</span></div>
-        <div><b>{{ stallCount }}</b><span>摊位章</span></div>
+        <div><b>{{ stamps }}</b><span>消费章(已到账)</span></div>
         <div><b>{{ state.points }}</b><span>积分</span></div>
       </div>
-      <div class="muted tip-line">再集 {{ Math.max(0, 3 - lit) }} 场解锁「闽南通」· 积分可换严选好物 / 商户券</div>
+      <div class="muted tip-line">
+        <template v-if="pendCount">还有 {{ pendCount }} 笔登记「待核验」· 兑奖时集卡处扫码抽查后到账<br /></template>
+        再集 {{ Math.max(0, 3 - lit) }} 场解锁「闽南通」· 积分可换严选好物 / 商户券
+      </div>
     </section>
 
     <section class="card">
       <h2>我的印章册</h2>
+      <div class="legend">
+        <i class="dot v"></i>已核销到账 <i class="dot p"></i>登记待核验 <i class="dot g"></i>未登记
+      </div>
       <div class="grid">
         <div v-for="m in MARKETS" :key="m.id" class="cell">
-          <div v-if="isLit(m)" class="seal">
+          <div class="seal" :class="marketStampStatus(m.id) || 'gray'">
             <span class="s-name" :class="{ long: sealName(m).length > 3 }">{{ sealName(m) }}</span>
-            <span class="s-sub">{{ stampDate(m) }}</span>
-          </div>
-          <div v-else class="seal gray">
-            <span class="s-name" :class="{ long: sealName(m).length > 3 }">{{ sealName(m) }}</span>
-            <span class="s-sub">{{ STATUS_TEXT[m.status] }}</span>
+            <span class="s-sub">{{ subText(m) }}</span>
           </div>
           <div class="cell-name">{{ m.venue }}<em>{{ m.city }}</em></div>
         </div>
@@ -189,6 +199,32 @@ function makePoster() {
   flex-wrap: wrap;
   gap: 16px 10px;
   justify-content: flex-start;
+}
+.legend {
+  font-size: 10px;
+  color: var(--muted);
+  margin: -6px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.legend .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+.legend .dot:first-child {
+  margin-left: 0;
+}
+.legend .dot.v {
+  background: var(--seal);
+}
+.legend .dot.p {
+  background: #d9822b;
+}
+.legend .dot.g {
+  background: #cfc6b8;
 }
 .cell {
   width: 31%;
