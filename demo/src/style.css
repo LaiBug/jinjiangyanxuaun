@@ -1,0 +1,320 @@
+:root {
+  --ink: #2f2a26;
+  --muted: #8a8072;
+  --paper: #f6efe2;
+  --card: #fffdf8;
+  --seal: #c8342b;
+  --seal-dark: #a02820;
+  --gold: #b8862d;
+  --line: #e7ddc9;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  background-image: radial-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: 76px;
+  position: relative;
+}
+
+/* —— 顶栏 —— */
+.hd {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  background: linear-gradient(180deg, var(--paper) 82%, transparent);
+}
+.brand {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--seal-dark);
+  font-family: 'Kaiti SC', KaiTi, STKaiti, serif;
+}
+.brand .sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+.pill {
+  background: var(--seal);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(200, 52, 43, 0.35);
+}
+
+.main {
+  padding: 4px 14px 20px;
+}
+
+/* —— 卡片 —— */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 14px rgba(90, 70, 40, 0.07);
+}
+.card h2 {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.card h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: var(--seal);
+  border-radius: 2px;
+  margin-right: 8px;
+  vertical-align: -2px;
+}
+
+/* —— 按钮 —— */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 18px;
+  transition: transform 0.1s;
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn.ghost {
+  border: 1.5px solid var(--seal);
+  color: var(--seal);
+  background: #fff;
+}
+.btn.solid {
+  background: linear-gradient(135deg, #d8433a, var(--seal-dark));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(200, 52, 43, 0.35);
+}
+.btn.wide {
+  width: 100%;
+}
+.btn[disabled] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* —— 印章 —— */
+.seal {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 3px solid var(--seal);
+  box-shadow: inset 0 0 0 2.5px #fff, inset 0 0 0 5px var(--seal);
+  color: var(--seal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-family: 'Kaiti SC', KaiTi, STKaiti, serif;
+  font-weight: 700;
+  transform: rotate(-8deg);
+  background: rgba(200, 52, 43, 0.05);
+  user-select: none;
+}
+.seal .s-name {
+  font-size: 19px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+.seal .s-sub {
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.85;
+  line-height: 1;
+}
+.seal.gray {
+  border-style: dashed;
+  border-color: #c9c0ae;
+  box-shadow: none;
+  color: #b9b0a0;
+  background: transparent;
+  transform: none;
+}
+.seal.mini {
+  width: 52px;
+  height: 52px;
+  border-width: 2px;
+  box-shadow: inset 0 0 0 1.5px #fff, inset 0 0 0 3px var(--seal);
+}
+.seal.mini .s-name {
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.seal.pop {
+  animation: slam 0.5s cubic-bezier(0.25, 1.6, 0.45, 1);
+}
+@keyframes slam {
+  0% {
+    transform: scale(2.3) rotate(-28deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.92) rotate(-5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+/* —— 标签栏 —— */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  background: #fffdf8;
+  border-top: 1px solid var(--line);
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  z-index: 20;
+}
+.tabbar button {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 6px 0;
+  border-radius: 10px;
+  position: relative;
+}
+.tabbar button.on {
+  color: var(--seal);
+  font-weight: 800;
+}
+.tabbar button.on::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--seal);
+}
+
+/* —— toast —— */
+.toast {
+  position: fixed;
+  bottom: 92px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(47, 42, 38, 0.92);
+  color: #fff;
+  font-size: 13px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  z-index: 30;
+  white-space: nowrap;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* —— 通用小件 —— */
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+.note {
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(184, 134, 45, 0.08);
+  border: 1px dashed var(--gold);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+/* —— 分享卡片弹窗 —— */
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+.mask img {
+  width: min(78vw, 340px);
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+.mask .tip {
+  color: #fff;
+  font-size: 13px;
+  opacity: 0.9;
+}
